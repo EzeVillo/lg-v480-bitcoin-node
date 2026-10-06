@@ -1,0 +1,6 @@
+# Publicacion inicial: solo documentacion revisada y estas reglas.
+# Los registros, respaldos, fuentes y binarios locales quedan excluidos.
+# Revisar y anonimizar cada archivo antes de permitir su publicacion.
+/*
+!/README.md
+!/.gitignore
