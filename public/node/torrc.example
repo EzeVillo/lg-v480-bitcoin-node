@@ -1,0 +1,9 @@
+# Plantilla: adaptar ambos marcadores localmente antes de usar.
+DataDirectory @TERMUX_HOME@/.tor
+SocksPort @LOOPBACK_IP@:9050
+ControlPort @LOOPBACK_IP@:9051
+CookieAuthentication 1
+AvoidDiskWrites 1
+SafeLogging 1
+HiddenServiceDir @TERMUX_HOME@/.tor/bitcoin-service
+HiddenServicePort 8333 @LOOPBACK_IP@:8333

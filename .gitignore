@@ -1,6 +1,63 @@
-# Publicacion inicial: solo documentacion revisada y estas reglas.
-# Los registros, respaldos, fuentes y binarios locales quedan excluidos.
-# Revisar y anonimizar cada archivo antes de permitir su publicacion.
+# Denegar todo salvo los archivos revisados del manifiesto.
+# Los respaldos, fuentes privadas, builds y configuraciones reales siguen fuera.
 /*
-!/README.md
+!/.gitattributes
 !/.gitignore
+!/PUBLIC_FILES.txt
+!/README.md
+!/SECURITY.md
+!/public/
+/public/*
+!/public/README.md
+!/public/android/
+/public/android/*
+!/public/android/AndroidManifest.xml
+!/public/android/README.md
+!/public/android/build.ps1
+!/public/android/res/
+/public/android/res/*
+!/public/android/res/drawable/
+/public/android/res/drawable/*
+!/public/android/res/drawable/ic_bitcoin.xml
+!/public/android/res/drawable/ic_panel.xml
+!/public/android/res/values/
+/public/android/res/values/*
+!/public/android/res/values/strings.xml
+!/public/android/res/values/styles.xml
+!/public/android/src/
+/public/android/src/*
+!/public/android/src/ar/
+/public/android/src/ar/*
+!/public/android/src/ar/eze/
+/public/android/src/ar/eze/*
+!/public/android/src/ar/eze/v480wifiautoconnect/
+/public/android/src/ar/eze/v480wifiautoconnect/*
+!/public/android/src/ar/eze/v480wifiautoconnect/BootReceiver.java
+!/public/android/src/ar/eze/v480wifiautoconnect/MainActivity.java
+!/public/android/src/ar/eze/v480wifiautoconnect/NativePanelActivity.java
+!/public/android/src/ar/eze/v480wifiautoconnect/WifiReconnectService.java
+!/public/node/
+/public/node/*
+!/public/node/README.md
+!/public/node/api.cgi
+!/public/node/bitcoin.conf.example
+!/public/node/build-charge-control.ps1
+!/public/node/charge-control.c
+!/public/node/charge-control.rc
+!/public/node/node.env.example
+!/public/node/restore-android-desktop.sh
+!/public/node/set-android-low-ram.sh
+!/public/node/set-low-memory-cache.sh
+!/public/node/torrc.example
+!/public/remote-access/
+/public/remote-access/*
+!/public/remote-access/README.md
+!/public/remote-access/Start-V480Tunnel.ps1
+!/tools/
+/tools/*
+!/tools/check_publication.py
+!/tools/test_publication.py
+!/tools/hooks/
+/tools/hooks/*
+!/tools/hooks/pre-commit
+!/tools/hooks/pre-push

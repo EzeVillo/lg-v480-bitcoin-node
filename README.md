@@ -1,10 +1,12 @@
 # LG G Pad V480 como nodo Bitcoin con Tor
 
-Documentación de la transformación de una LG G Pad 8.0 V480 en un nodo Bitcoin podado, con conexiones por Tor, arranque automático y un panel Android nativo de bajo consumo.
+Fuentes y documentación de la transformación de una LG G Pad 8.0 V480 en un nodo Bitcoin podado, con conexiones por Tor, arranque automático y un panel Android nativo de bajo consumo.
 
 El proyecto reúne recuperación de hardware, instalación de una ROM alternativa, configuración de servicios en Termux, desarrollo de una aplicación Java y ajustes para trabajar con menos de 1 GiB de RAM utilizable.
 
 Se describen la configuración final, la evolución del desarrollo y los resultados de las pruebas realizadas.
+
+El [kit público](public/README.md) incluye las fuentes de la app 1.16, la API, el controlador de carga, scripts revisados y plantillas de configuración. Las [instrucciones de compilación](public/android/README.md) permiten generar un APK propio. La [política de publicación](SECURITY.md) detalla qué archivos se excluyen y cómo comprobar la privacidad antes de subir cambios.
 
 ## Objetivo y resultado
 
@@ -72,18 +74,18 @@ flowchart TD
     A --> O[Servicio nativo de control de carga]
 ```
 
-La app obtiene los datos de una API en `127.0.0.1`. El CGI consulta Core dentro de Termux y lee sensores del sistema. El panel no recibe la cookie RPC ni la contraseña de Core.
+La app obtiene los datos de una API en `localhost`. El CGI consulta Core dentro de Termux y lee sensores del sistema. El panel no recibe la cookie RPC ni la contraseña de Core.
 
 | Servicio | Escucha en la tablet | Uso |
 | --- | --- | --- |
-| RPC de Bitcoin Core | `127.0.0.1:8332` | Consultas locales y acceso por túnel SSH |
-| P2P de Bitcoin Core | `127.0.0.1:8333` | Destino del servicio onion P2P |
-| API HTTP | `127.0.0.1:8080` | Panel local |
-| SOCKS de Tor | `127.0.0.1:9050` | Conexiones salientes de Core |
-| Control de Tor | `127.0.0.1:9051` | Comprobación del arranque de Tor mediante cookie |
+| RPC de Bitcoin Core | `localhost:8332` | Consultas locales y acceso por túnel SSH |
+| P2P de Bitcoin Core | `localhost:8333` | Destino del servicio onion P2P |
+| API HTTP | `localhost:8080` | Panel local |
+| SOCKS de Tor | `localhost:9050` | Conexiones salientes de Core |
+| Control de Tor | `localhost:9051` | Comprobación del arranque de Tor mediante cookie |
 | SSH de Termux | Puerto `8022` en la LAN | Administración autenticada y túneles locales |
 
-`127.0.0.1` es loopback: los servicios ligados a esa dirección se acceden localmente dentro de la tablet. El estado final documentado conserva acceso administrativo por LAN y un onion exclusivamente P2P. El onion administrativo ensayado durante el trabajo fue desactivado.
+`localhost` es loopback: los servicios ligados a esa dirección se acceden localmente dentro de la tablet. El estado final documentado conserva acceso administrativo por LAN y un onion exclusivamente P2P. El onion administrativo ensayado durante el trabajo fue desactivado.
 
 ## Cómo se realizó
 
@@ -231,7 +233,7 @@ Se cuidó el ciclo de vida de la interfaz:
 
 La pantalla de mantenimiento consulta normalmente cada 10 segundos y cada 3 segundos durante una transición. Bloquea acciones incompatibles con el estado del servicio y evita duplicar ciclos de consulta al pulsar los botones.
 
-La app actual declara permiso `INTERNET` porque Android lo requiere incluso para HTTP de loopback. Los destinos HTTP encontrados en su código apuntan a `127.0.0.1`.
+La app actual declara permiso `INTERNET` porque Android lo requiere incluso para HTTP de loopback. Los destinos HTTP encontrados en su código apuntan a `localhost`.
 
 Los botones utilizan `com.termux.RUN_COMMAND` para invocar los comandos de inicio y parada. Se habilitó `allow-external-apps=true` y se concedió el permiso de ejecución a la app, según la [API RUN_COMMAND de Termux](https://github.com/termux/termux-app/wiki/RUN_COMMAND-Intent).
 
@@ -287,12 +289,12 @@ En Windows se prepararon dos modalidades: un lanzador portátil que pide la cont
 Ejemplo genérico equivalente para una terminal con OpenSSH:
 
 ```sh
-ssh -p 8022 -N -T -L 127.0.0.1:8332:127.0.0.1:8332 TERMUX_USER@TABLET_IP
+ssh -p 8022 -N -T -L localhost:8332:localhost:8332 TERMUX_USER@TABLET_IP
 ```
 
 `TERMUX_USER` y `TABLET_IP` son marcadores que cada instalación debe reemplazar. Antes del primer acceso se verifica la huella de su propio servidor SSH por un medio local confiable.
 
-Con el túnel abierto, Sparrow se configura para conectarse a Bitcoin Core en `127.0.0.1:8332` de la PC, usando credenciales RPC propias. La contraseña RPC y la contraseña SSH cumplen funciones diferentes. Si otra sesión ya utiliza ese puerto en la misma PC, se elige un puerto local alternativo.
+Con el túnel abierto, Sparrow se configura para conectarse a Bitcoin Core en `localhost:8332` de la PC, usando credenciales RPC propias. La contraseña RPC y la contraseña SSH cumplen funciones diferentes. Si otra sesión ya utiliza ese puerto en la misma PC, se elige un puerto local alternativo.
 
 ## Compilación y componentes desarrollados
 
@@ -312,7 +314,7 @@ El desarrollo se organizó en los siguientes componentes:
 
 La app se compiló en Windows con JDK, plataforma Android SDK 36 y Build Tools 36.1.0. El proceso conservado utiliza `aapt2` para recursos, `javac` con nivel Java 8, `d8` para DEX, `zipalign` y `apksigner`. El manifiesto fija API mínima 24 y target 25.
 
-El script genera el APK 1.16, verifica su firma y calcula SHA-256. La firma de desarrollo se obtiene de una keystore local. Para actualizar sin desinstalar se requiere una firma compatible con el APK ya instalado.
+El script público genera el APK 1.16 sin firmar y calcula SHA-256; también admite firmarlo con una keystore propia y verificar la firma. La keystore y las contraseñas permanecen locales. Para actualizar sin desinstalar se requiere una firma compatible con el APK ya instalado.
 
 El controlador de carga se compiló con `zig cc`, objetivo `arm-linux-musleabi`, optimización de tamaño y enlace estático PIE. Su instalación y los permisos SELinux deben adaptarse al dispositivo; compilar el binario no configura por sí solo el servicio.
 
@@ -382,7 +384,7 @@ La reproducción requiere adaptar firmware, permisos y rutas al equipo propio. L
 6. Identificar la microSD y comprobar escritura y funcionamiento del almacenamiento de Core.
 7. Crear configuración propia para Core y Tor, con presupuestos acordes a la RAM y credenciales nuevas.
 8. Preparar supervisión, dependencias de arranque, registros y comandos de parada ordenada.
-9. Adaptar y compilar la app y el CGI, si se dispone de sus fuentes, y habilitar la integración autorizada con Termux.
+9. Adaptar y compilar la [app](public/android/README.md), configurar el [CGI](public/node/README.md) y habilitar la integración autorizada con Termux.
 10. Configurar el panel como HOME y aplicar ajustes de memoria solo cuando el equipo y la ROM los admitan.
 11. Adaptar el controlador de carga únicamente si existen los nodos sysfs y permisos necesarios.
 12. Probar reinicio, reconexión, cierre ordenado y recepción de nuevos bloques; esperar a que termine la sincronización inicial.

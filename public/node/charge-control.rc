@@ -1,0 +1,4 @@
+service v480-charge /system/bin/v480-charge-control
+    class main
+    user root
+    group root

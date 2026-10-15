@@ -1,0 +1,30 @@
+# Plantilla: reemplazar @LOOPBACK_IP@ por loopback numérico local antes de usar.
+# Los datos se eligen al ejecutar Core con -datadir; no ponerlos en Git.
+server=1
+daemon=0
+disablewallet=1
+prune=3000
+dbcache=32
+maxconnections=12
+maxuploadtarget=500
+maxmempool=20
+mempoolexpiry=336
+par=1
+rpcthreads=2
+rpcworkqueue=8
+blocksonly=0
+persistmempool=0
+txindex=0
+blockfilterindex=0
+coinstatsindex=0
+rpcbind=@LOOPBACK_IP@
+rpcallowip=@LOOPBACK_IP@
+proxy=@LOOPBACK_IP@:9050
+onion=@LOOPBACK_IP@:9050
+proxyrandomize=1
+listen=1
+bind=@LOOPBACK_IP@:8333=onion
+listenonion=0
+discover=0
+dnsseed=1
+natpmp=0
