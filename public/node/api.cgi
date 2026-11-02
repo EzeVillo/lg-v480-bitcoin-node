@@ -63,7 +63,7 @@ esac
 mkdir -p "$task_tmp"
 
 chain_ready=0
-if "$bitcoin_cli" -datadir="$node_data" -rpcclienttimeout=8 getblockchaininfo >"$task_tmp/chain" 2>/dev/null; then
+if "$bitcoin_cli" -datadir="$node_data" -rpcclienttimeout=8 getblockchaininfo >"$task_tmp/chain" 2>"$task_tmp/rpc-error"; then
   chain_ready=1
   "$bitcoin_cli" -datadir="$node_data" -rpcclienttimeout=8 getnetworkinfo >"$task_tmp/network" 2>/dev/null
   "$bitcoin_cli" -datadir="$node_data" -rpcclienttimeout=8 getmempoolinfo >"$task_tmp/mempool" 2>/dev/null
@@ -72,12 +72,25 @@ else
   : >"$task_tmp/mempool"
 fi
 
+rpc_error_code='null'
 if [ "$chain_ready" = 1 ]; then
   bitcoin_state='activo'
-elif pidof bitcoind >/dev/null 2>&1 || ps -A 2>/dev/null | grep -q '[b]itcoind'; then
-  bitcoin_state='iniciando'
 else
-  bitcoin_state='detenido'
+  rpc_error_code="$(awk '/^error code: -?[0-9]+$/ { print $3; exit }' "$task_tmp/rpc-error")"
+  rpc_error_code=${rpc_error_code:-null}
+  if ! pidof bitcoind >/dev/null 2>&1 \
+    && ! ps -A -o comm= 2>/dev/null | grep -qx 'bitcoind'; then
+    bitcoin_state='detenido'
+  elif [ "$rpc_error_code" = '-28' ]; then
+    # RPC_IN_WARMUP es la confirmación de Core de que aún está cargando.
+    bitcoin_state='iniciando'
+  elif [ "$rpc_error_code" != 'null' ] \
+    || grep -qi 'Authorization failed\|Incorrect rpcuser or rpcpassword' "$task_tmp/rpc-error"; then
+    bitcoin_state='error_rpc'
+  else
+    # Un timeout, desconexión o cola RPC llena no implica un nuevo arranque.
+    bitcoin_state='sin_respuesta'
+  fi
 fi
 
 case "$(sv status "$node_prefix/var/service/tor" 2>/dev/null)" in
@@ -223,6 +236,7 @@ updated_epoch="$(date +%s)"
 
 printf '{'
 json_member bitcoin "$bitcoin_state"
+printf '"rpc_error_code":%s,' "$rpc_error_code"
 json_member tor "$tor_state"
 json_member wifi "$wifi_state"
 printf '"blocks":%s,' "$blocks"

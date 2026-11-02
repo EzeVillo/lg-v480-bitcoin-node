@@ -10,6 +10,8 @@ maxuploadtarget=500
 maxmempool=20
 mempoolexpiry=336
 par=1
+# Core 32+: evitar los ocho hilos de lectura adicionales en esta tablet.
+prevoutfetchthreads=0
 rpcthreads=2
 rpcworkqueue=8
 blocksonly=0

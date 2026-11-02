@@ -242,12 +242,20 @@ public final class NativePanelActivity extends Activity {
         int value = (int) n("core_version");
         return value == 0 ? "—" : value / 10000 + "." + value % 10000 / 100 + "." + value % 100;
     }
+    private String coreStatus() {
+        String value = s("bitcoin");
+        if ("sin_respuesta".equals(value)) return "sin respuesta RPC";
+        if ("error_rpc".equals(value)) return "error RPC";
+        return value;
+    }
     private String state() {
         if (error != null) return data == null ? "CONECTANDO CON EL NODO" : "SIN RESPUESTA DEL PANEL";
         if (n("storage_available") == 0) return "ERROR DE ALMACENAMIENTO";
         if (!"conectado".equals(s("wifi"))) return "SIN CONEXIÓN";
         if (!"activo".equals(s("tor"))) return "ESPERANDO TOR";
         if ("iniciando".equals(s("bitcoin"))) return "INICIANDO BITCOIN CORE";
+        if ("sin_respuesta".equals(s("bitcoin"))) return "CORE SIN RESPUESTA RPC";
+        if ("error_rpc".equals(s("bitcoin"))) return "ERROR RPC DE BITCOIN CORE";
         if (!"activo".equals(s("bitcoin"))) return "BITCOIN CORE DETENIDO";
         if (b("initial_block_download") || n("blocks") < n("headers")) return "SINCRONIZANDO";
         return "NODO ACTIVO";
@@ -353,7 +361,7 @@ public final class NativePanelActivity extends Activity {
             rect(c, 30, 122, 5, 127, tone, 2);
             label(c, "ESTADO GENERAL", 57, 151);
             text(c, state, 57, 200, 31, foreground, false, 682);
-            text(c, "Core " + s("bitcoin") + " · Tor " + s("tor"), 57, 235, 17, muted, false, 690);
+            text(c, "Core " + coreStatus() + " · Tor " + s("tor"), 57, 235, 17, muted, false, 690);
             card(c, 30, 266, 740, 185);
             label(c, "SINCRONIZACIÓN", 53, 296);
             rightText(c, "BLOQUES / CABECERAS", 747, 296, 13, muted, true, 191);
@@ -392,7 +400,7 @@ public final class NativePanelActivity extends Activity {
             rect(c, 30, 119, 5, 147, tone, 2);
             label(c, "ESTADO GENERAL", 54, 145);
             text(c, state, 54, 205, 31, foreground, false, 540);
-            text(c, "Core " + s("bitcoin") + " · Tor " + s("tor"), 54, 257, 14, muted, false, 540);
+            text(c, "Core " + coreStatus() + " · Tor " + s("tor"), 54, 257, 14, muted, false, 540);
 
             card(c, 635, 115, 610, 155);
             label(c, "SINCRONIZACIÓN", 659, 145);

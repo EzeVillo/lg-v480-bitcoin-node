@@ -212,7 +212,7 @@ public final class MainActivity extends Activity {
             // El CGI consulta a Bitcoin Core en una tablet lenta; durante IBD una
             // respuesta normal puede tardar varios segundos.
             connection.setConnectTimeout(2_000);
-            connection.setReadTimeout(8_000);
+            connection.setReadTimeout(30_000);
             connection.setUseCaches(false);
             connection.setRequestProperty("Cache-Control", "no-cache");
             InputStream input = connection.getInputStream();
@@ -253,14 +253,15 @@ public final class MainActivity extends Activity {
         }
 
         if (pendingAction == ACTION_STOP) {
-            if (!status.reachable || !status.active) {
+            if (status.reachable && "detenido".equals(status.bitcoin)) {
                 pendingAction = ACTION_NONE;
                 showInactive(status);
             } else if (now < pendingActionDeadline) {
                 showTransition("Deteniendo el nodo…");
             } else {
                 pendingAction = ACTION_NONE;
-                showActive(status.tor);
+                if (status.active) showActive(status.tor);
+                else showInactive(status);
             }
             return;
         }
@@ -294,13 +295,18 @@ public final class MainActivity extends Activity {
     }
 
     private void showInactive(NodeStatus status) {
-        String message = status.reachable
-                ? "● Nodo detenido · Tor " + status.tor
-                : "● Nodo detenido";
+        boolean running = "iniciando".equals(status.bitcoin)
+                || "sin_respuesta".equals(status.bitcoin) || "error_rpc".equals(status.bitcoin);
+        String message;
+        if (!status.reachable) message = "● Sin respuesta del panel";
+        else if ("iniciando".equals(status.bitcoin)) message = "● Bitcoin Core iniciando";
+        else if ("sin_respuesta".equals(status.bitcoin)) message = "● Core sin respuesta RPC";
+        else if ("error_rpc".equals(status.bitcoin)) message = "● Error RPC de Bitcoin Core";
+        else message = "● Nodo detenido · Tor " + status.tor;
         statusText.setText(message);
-        statusText.setTextColor(Color.rgb(120, 120, 120));
-        startButton.setEnabled(true);
-        stopButton.setEnabled(false);
+        statusText.setTextColor(running ? Color.rgb(230, 126, 34) : Color.rgb(120, 120, 120));
+        startButton.setEnabled(!running);
+        stopButton.setEnabled(running);
     }
 
     private void runTermuxCommand(String path, String successMessage) {

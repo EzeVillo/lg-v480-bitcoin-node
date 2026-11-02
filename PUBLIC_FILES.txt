@@ -33,3 +33,4 @@ tools/check_publication.py
 tools/hooks/pre-commit
 tools/hooks/pre-push
 tools/test_publication.py
+tools/test_node_api.py

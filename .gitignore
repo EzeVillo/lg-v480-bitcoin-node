@@ -57,6 +57,7 @@
 /tools/*
 !/tools/check_publication.py
 !/tools/test_publication.py
+!/tools/test_node_api.py
 !/tools/hooks/
 /tools/hooks/*
 !/tools/hooks/pre-commit

@@ -1,6 +1,6 @@
 # Kit público de LG V480
 
-Esta carpeta contiene una copia revisada de las fuentes 1.16. Los originales
+Esta carpeta contiene una copia revisada de las fuentes 1.17. Los originales
 de trabajo, registros del dispositivo y binarios anteriores quedan fuera de Git.
 
 | Carpeta | Contenido |

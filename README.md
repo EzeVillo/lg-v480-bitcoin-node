@@ -6,7 +6,7 @@ El proyecto reúne recuperación de hardware, instalación de una ROM alternativ
 
 Se describen la configuración final, la evolución del desarrollo y los resultados de las pruebas realizadas.
 
-El [kit público](public/README.md) incluye las fuentes de la app 1.16, la API, el controlador de carga, scripts revisados y plantillas de configuración. Las [instrucciones de compilación](public/android/README.md) permiten generar un APK propio. La [política de publicación](SECURITY.md) detalla qué archivos se excluyen y cómo comprobar la privacidad antes de subir cambios.
+El [kit público](public/README.md) incluye las fuentes de la app 1.17, la API, el controlador de carga, scripts revisados y plantillas de configuración. Las [instrucciones de compilación](public/android/README.md) permiten generar un APK propio. La [política de publicación](SECURITY.md) detalla qué archivos se excluyen y cómo comprobar la privacidad antes de subir cambios.
 
 ## Objetivo y resultado
 
@@ -46,11 +46,18 @@ Las versiones siguientes son las registradas en esta experiencia, no una lista d
 | Kernel | Linux 3.4.0-Lineage+, ARMv7 |
 | Termux | 0.118.3 |
 | Termux:Boot | 0.8.1 |
-| Bitcoin Core | 31.1, paquete ARM de Termux |
-| Servicios auxiliares | Tor, OpenSSH, BusyBox HTTPD y runit mediante `termux-services` |
-| Aplicación propia | Nodo Bitcoin; última fuente y APK conservados: versión 1.16 |
+| Bitcoin Core | 32.1, paquete ARM de Termux; actualizado el 2 de noviembre de 2026 |
+| Servicios auxiliares | Tor v0.4.9.15, OpenSSH 10.6p1, BusyBox HTTPD y runit mediante `termux-services` |
+| Aplicación propia | Nodo Bitcoin; última fuente y APK conservados: versión 1.17 |
 
 Se evaluó la alternativa de Linux nativo. Al no disponer de un port listo y comprobado para esta unidad, se eligió LineageOS con Termux para conservar el soporte Android del hardware.
+
+El mantenimiento del 2 de noviembre de 2026 actualizó Core desde 31.1, Tor desde
+v0.4.9.12 y el entorno de paquetes Termux, con respaldo y cierre ordenado de los
+servicios. Las versiones anteriores estaban disponibles al preparar la tablet;
+no había paquetes retenidos por rendimiento. Se conservaron los presupuestos
+de memoria y se añadió `prevoutfetchthreads=0` para evitar los ocho hilos de
+lectura nuevos de [Core 32.1](https://bitcoincore.org/en/releases/32.1/).
 
 ## Arquitectura
 
@@ -248,7 +255,7 @@ La optimización se realizó en dos etapas:
 
 Se conservó un escape específico para texto con Unicode, comillas, barras invertidas y caracteres de control. Se corrigió un problema de manejo de UTF-8 en dash/bionic antes de instalar la revisión. El parámetro de detalle se comprobó como `detail=1` exacto, evitando confundirlo con `detail=10`.
 
-La API distingue Core activo, iniciando y detenido. El panel espera datos RPC durante el arranque en lugar de presentar los valores de reemplazo como un estado definitivo de la cadena.
+La API distingue Core activo, iniciando, sin respuesta RPC, con error RPC y detenido. Desde la app 1.17, el mensaje de arranque requiere la respuesta explícita `RPC_IN_WARMUP` (`-28`); un proceso vivo con RPC lento o saturado muestra `CORE SIN RESPUESTA RPC`. El panel espera datos RPC durante el arranque en lugar de presentar los valores de reemplazo como un estado definitivo de la cadena.
 
 ### 11. Android dedicado y ajustes de memoria
 
@@ -353,7 +360,7 @@ Los tiempos de API incluyen ADB; cada fila compara muestras de su propia etapa. 
 
 Después de un arranque normal, el sistema recupera Wi-Fi, inicia servicios y muestra el panel. Core puede tardar en cargar el índice y verificar bloques desde la microSD; mientras el registro avance, conviene esperar a que termine esa etapa.
 
-El panel distingue nodo activo, sincronizando, Core iniciando, esperando Tor, sin conexión, Core detenido y error de almacenamiento. La tarjeta Memoria representa recursos de toda la tablet. El contador SSH representa conexiones administrativas, no pares Bitcoin.
+El panel distingue nodo activo, sincronizando, Core iniciando, Core sin respuesta RPC, error RPC, esperando Tor, sin conexión, Core detenido y error de almacenamiento. La tarjeta Memoria representa recursos de toda la tablet. El contador SSH representa conexiones administrativas, no pares Bitcoin.
 
 Para apagar de forma ordenada:
 

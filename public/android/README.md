@@ -1,4 +1,4 @@
-# App Android Nodo Bitcoin 1.16
+# App Android Nodo Bitcoin 1.17
 
 Fuentes Java de la reconexión Wi-Fi, pantalla de mantenimiento y panel nativo.
 Orientadas a Android 7, con API mínima 24 y target 25. No se comprobó compatibilidad
@@ -15,7 +15,7 @@ Desde esta carpeta:
 .\build.ps1
 ```
 
-Genera `build/wifi-autoconnect-v1.16-unsigned.apk` y muestra su SHA-256. La carpeta
+Genera `build/wifi-autoconnect-v1.17-unsigned.apk` y muestra su SHA-256. La carpeta
 `build` está excluida de Git. El APK sin firmar permite comprobar la compilación;
 para instalarlo hace falta firmarlo con una clave propia.
 
@@ -25,7 +25,7 @@ para instalarlo hace falta firmarlo con una clave propia.
 
 La herramienta de firma solicita la contraseña. También puede recibirla desde
 la variable local `V480_KEYSTORE_PASSWORD`; no guardar su valor en scripts ni
-en Git. El resultado firmado queda en `build/wifi-autoconnect-v1.16.apk` y el
+en Git. El resultado firmado queda en `build/wifi-autoconnect-v1.17.apk` y el
 script verifica su firma. Para distribución estable conviene una clave propia
 de publicación. Una actualización exige la misma firma que el APK instalado.
 
@@ -65,3 +65,10 @@ La app reutiliza redes Wi-Fi ya guardadas por Android; las fuentes no incluyen
 SSID ni claves Wi-Fi. No incorpora credenciales RPC, claves de firma, direcciones
 remotas ni datos de wallets. El panel puede mostrar información local obtenida
 de la API; revisar las capturas antes de compartirlas.
+
+La versión 1.17 distingue el arranque confirmado por Core (`iniciando`, error
+RPC `-28`), el proceso vivo con RPC sin respuesta (`sin_respuesta`) y un error
+RPC explícito (`error_rpc`). La pantalla de mantenimiento conserva la parada
+disponible mientras el proceso está vivo y espera hasta 30 segundos por la API,
+igual que el panel. Un timeout o una cola RPC llena ya no se presentan como un
+nuevo arranque.

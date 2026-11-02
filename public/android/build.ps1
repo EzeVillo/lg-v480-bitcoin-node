@@ -47,7 +47,7 @@ if ($LASTEXITCODE -ne 0) { throw "aapt2 compile falló" }
 $resourcesApk = Join-Path $buildRoot "resources.apk"
 & $aapt2 link -I $androidJar --manifest (Join-Path $sourceRoot "AndroidManifest.xml") `
     --java $generatedRoot --min-sdk-version 24 --target-sdk-version 25 `
-    --version-code 17 --version-name 1.16 -o $resourcesApk $compiledResources
+    --version-code 18 --version-name 1.17 -o $resourcesApk $compiledResources
 if ($LASTEXITCODE -ne 0) { throw "aapt2 link falló" }
 
 $javaFiles = @(
@@ -85,7 +85,7 @@ $alignedApk = Join-Path $buildRoot "wifi-autoconnect-aligned.apk"
 if ($LASTEXITCODE -ne 0) { throw "zipalign falló" }
 
 if ($KeystorePath) {
-    $outputApk = Join-Path $buildRoot "wifi-autoconnect-v1.16.apk"
+    $outputApk = Join-Path $buildRoot "wifi-autoconnect-v1.17.apk"
     $signArguments = @("sign", "--ks", $KeystorePath, "--ks-key-alias", $KeyAlias)
     # apksigner pide la contraseña si no se proporciona mediante el entorno.
     if ($env:V480_KEYSTORE_PASSWORD) {
@@ -97,7 +97,7 @@ if ($KeystorePath) {
     & $apksigner verify $outputApk
     if ($LASTEXITCODE -ne 0) { throw "La verificación de firma falló" }
 } else {
-    $outputApk = Join-Path $buildRoot "wifi-autoconnect-v1.16-unsigned.apk"
+    $outputApk = Join-Path $buildRoot "wifi-autoconnect-v1.17-unsigned.apk"
     Copy-Item -LiteralPath $alignedApk -Destination $outputApk
     Write-Host "APK sin firmar: para instalar, recompilar con -KeystorePath y -KeyAlias."
 }

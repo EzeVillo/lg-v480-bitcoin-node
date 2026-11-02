@@ -55,6 +55,19 @@ herramientas habituales de Termux/Android. Busca los servicios runit `tor` y
 `bitcoind`. Para mostrar la identidad P2P busca el archivo `hostname` en
 `~/.tor/bitcoin-service`, `~/.tor/bitcoin` o `~/.tor/hidden_service`.
 
+El estado `iniciando` requiere el código RPC `-28` (`RPC_IN_WARMUP`) y un
+proceso `bitcoind` vivo. Un timeout, una desconexión o una cola de trabajo llena
+devuelven `sin_respuesta`; los errores RPC explícitos o de autenticación,
+`error_rpc`. Un proceso ausente devuelve `detenido`. El campo `rpc_error_code`
+contiene el código recibido, o `null`. Los datos de cadena se muestran cuando
+`bitcoin` es `activo`; los ceros de reemplazo no acreditan una altura real.
+
+Las regresiones se comprueban con `python tools/test_node_api.py` desde la raíz
+en POSIX. Para ejecutarlas sobre Termux desde Windows, definir
+`NODE_API_TEST_SSH` con el alias SSH propio antes de ejecutar Python. Las pruebas
+simulan las respuestas RPC y los procesos en copias de la API; no detienen el
+nodo ni sustituyen el endpoint instalado.
+
 ## Supervisión y arranque
 
 El kit conservado no contiene los antiguos `install.sh`, scripts `run`, ni los
@@ -79,6 +92,11 @@ reinicio, recuperación de Wi-Fi, API y cierre antes de dejar el nodo funcionand
   `build-charge-control.ps1` necesita Zig en PATH o `ZIG_EXE` y genera un binario
   ARM excluido de Git. `charge-control.rc` es una referencia para Android init;
   la instalación requiere adaptar permisos y SELinux al equipo.
+
+La plantilla actual usa Core 32 o posterior y fija `prevoutfetchthreads=0` para
+evitar los ocho hilos de lectura añadidos en esa versión. Mantiene `dbcache=32`,
+`maxmempool=20`, `maxconnections=12`, `par=1` y `rpcthreads=2`. El fundamento
+está en la [guía de memoria de Core 32.1](https://github.com/bitcoin/bitcoin/blob/v32.1/doc/reduce-memory.md).
 
 Estos ajustes no son necesarios para compilar la app. Los resultados históricos
 y sus límites están en el [README general](../../README.md).
